@@ -5,25 +5,52 @@ import pandas as pd
 st.set_page_config(page_title="AgentForge RL")
 
 st.title("🚀 AgentForge RL")
-st.subheader("Autonomous AI Agent Infrastructure")
+st.subheader("AI Database Agent")
 
-st.write("MCP Server + SQLite Environment Running Successfully")
+st.write("Ask questions about the company database")
 
-# Connect database
+# User input
+user_query = st.text_input("Ask something")
+
+# Connect DB
 conn = sqlite3.connect("company.db")
 
-# Load employees
-query = "SELECT * FROM employees"
+# Simple AI logic
+def generate_sql(query):
 
-try:
-    df = pd.read_sql_query(query, conn)
+    query = query.lower()
 
-    st.write("## Employee Database")
-    st.dataframe(df)
+    if "employees" in query:
+        return "SELECT * FROM employees"
 
-except Exception as e:
-    st.error(f"Error: {e}")
+    elif "departments" in query:
+        return "SELECT * FROM departments"
+
+    else:
+        return None
+
+# Button
+if st.button("Run Agent"):
+
+    sql = generate_sql(user_query)
+
+    if sql:
+
+        st.write("### Generated SQL")
+        st.code(sql, language="sql")
+
+        try:
+            df = pd.read_sql_query(sql, conn)
+
+            st.write("### Results")
+            st.dataframe(df)
+
+        except Exception as e:
+            st.error(f"Database Error: {e}")
+
+    else:
+        st.warning("Agent could not understand the request")
 
 conn.close()
 
-st.success("MCP Environment Active")
+st.success("Agent System Active")
